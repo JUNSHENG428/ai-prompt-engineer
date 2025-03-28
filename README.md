@@ -243,5 +243,4 @@ python prompt_engineer.py "分析市场趋势" --api-provider deepseek --model d
 **答**: 优先使用环境变量或.env文件存储密钥，并确保这些文件已添加到.gitignore中以避免上传到代码仓库。
 
 ## 许可证
-
-MIT 
+JUNSHENGMA LLSNB

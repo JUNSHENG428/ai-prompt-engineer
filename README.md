@@ -2,7 +2,7 @@
 
 这个项目提供了用于生成格式良好、详细的提示词的工具，基于自动提示工程（Automatic Prompt Engineering）的概念，并提供了美观易用的用户界面。
 
-![界面预览](https://via.placeholder.com/800x450.png?text=AI提示工程师界面预览)
+![界面预览](images/screenshot.png)
 
 ## 功能特点
 

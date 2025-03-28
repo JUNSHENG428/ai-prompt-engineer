@@ -1,0 +1,22 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: check-yaml
+    -   id: check-added-large-files
+    -   id: detect-private-key
+
+-   repo: https://github.com/zricethezav/gitleaks
+    rev: v8.16.1
+    hooks:
+    -   id: gitleaks
+
+-   repo: local
+    hooks:
+    -   id: check-api-keys
+        name: 检查API密钥泄露
+        entry: bash -c 'grep -Er "(sk-|OPENAI_API_KEY|DEEPSEEK_API_KEY)" --include="*.py" --include="*.json" --exclude="api_secrets.py" --exclude=".pre-commit-config.yaml" --exclude="*.template.json" --exclude=".env.example" --exclude="README.md" . && exit 1 || exit 0'
+        language: system
+        pass_filenames: false 

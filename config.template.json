@@ -1,0 +1,7 @@
+{
+  "api_key": "YOUR_API_KEY_HERE",
+  "api_provider": "deepseek",
+  "model": "deepseek-chat",
+  "default_format": "standard",
+  "language": "zh"
+}

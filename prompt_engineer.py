@@ -55,8 +55,10 @@ class PromptEngineer:
             self.base_url = "https://api.openai.com/v1/chat/completions"
         elif self.api_provider == "deepseek":
             self.base_url = "https://api.deepseek.com/v1/chat/completions"
+        elif self.api_provider == "claude":
+            self.base_url = "https://api.anthropic.com/v1/messages"
         else:
-            raise ValueError(f"Unsupported API provider: {api_provider}. Use 'openai' or 'deepseek'.")
+            raise ValueError(f"Unsupported API provider: {api_provider}. Use 'openai', 'deepseek', or 'claude'.")
         
         if not self.api_key:
             logger.warning("No API key provided. Using mock responses for demonstration.")
@@ -76,19 +78,45 @@ class PromptEngineer:
         if not self.api_key:
             # Mock response for demonstration when no API key is available
             return self._generate_mock_response(messages[-1]["content"])
-        
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.api_key}"
-        }
-        
-        # Both OpenAI and Deepseek use similar request formats
-        data = {
-            "model": self.model_name,
-            "messages": messages,
-            "temperature": temperature,
-            "max_tokens": max_tokens
-        }
+
+        system_prompt_content = None
+        processed_messages = []
+
+        # Separate system prompt for Claude, keep messages for others
+        if self.api_provider == "claude":
+            for msg in messages:
+                if msg["role"] == "system":
+                    system_prompt_content = msg["content"]
+                else:
+                    processed_messages.append(msg)
+        else:
+            processed_messages = messages
+
+        if self.api_provider == "claude":
+            headers = {
+                "x-api-key": self.api_key,
+                "anthropic-version": "2023-06-01",
+                "Content-Type": "application/json"
+            }
+            data = {
+                "model": self.model_name,
+                "messages": processed_messages, # Should only contain user/assistant messages
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+            }
+            if system_prompt_content:
+                data["system"] = system_prompt_content
+        else: # OpenAI and Deepseek
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.api_key}"
+            }
+            data = {
+                "model": self.model_name,
+                "messages": processed_messages, # Contains system prompt for these providers
+                "temperature": temperature,
+                "max_tokens": max_tokens
+            }
         
         try:
             response = requests.post(self.base_url, headers=headers, json=data)
@@ -96,13 +124,18 @@ class PromptEngineer:
             result = response.json()
             
             # Extract content based on API provider's response format
-            if self.api_provider == "openai":
+            if self.api_provider == "openai" or self.api_provider == "deepseek":
                 return result["choices"][0]["message"]["content"]
-            elif self.api_provider == "deepseek":
-                return result["choices"][0]["message"]["content"]
+            elif self.api_provider == "claude":
+                # Claude's response structure
+                if result.get("content") and isinstance(result["content"], list) and len(result["content"]) > 0:
+                    return result["content"][0]["text"]
+                else:
+                    logger.error(f"Unexpected Claude API response format: {result}")
+                    return "Error: Could not parse Claude API response."
             
         except Exception as e:
-            logger.error(f"API call failed: {e}")
+            logger.error(f"API call failed: {e}. Response: {response.text if 'response' in locals() else 'No response object'}")
             # Fall back to mock response in case of error
             return self._generate_mock_response(messages[-1]["content"])
     
@@ -270,9 +303,10 @@ def main():
                         default='standard', help='Format of the prompt to generate')
     parser.add_argument('--examples', type=str, help='Path to JSON file with examples for few-shot learning')
     parser.add_argument('--api-key', type=str, help='API key for the language model service')
-    parser.add_argument('--model', type=str, default='deepseek-chat', help='Model name to use')
-    parser.add_argument('--api-provider', type=str, choices=['openai', 'deepseek'], 
-                       default='deepseek', help='API provider to use (openai or deepseek)')
+    parser.add_argument('--model', type=str, default='deepseek-chat', 
+                        help='Model name to use (e.g., gpt-3.5-turbo, deepseek-chat, claude-3-opus-20240229)')
+    parser.add_argument('--api-provider', type=str, choices=['openai', 'deepseek', 'claude'], 
+                       default='deepseek', help='API provider to use (openai, deepseek, or claude)')
     parser.add_argument('--temperature', type=float, default=0.7, help='Temperature (0.0-1.0) for generation')
     parser.add_argument('--max-tokens', type=int, default=1000, help='Maximum tokens to generate')
     args = parser.parse_args()

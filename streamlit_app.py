@@ -87,6 +87,12 @@ def get_css():
     return f"""
     <style>
         /* 全局样式 */
+        body {{
+            color: {current_theme["text"]};
+        }}
+        .main {{
+            background-color: {current_theme["background"]};
+        }}
         .main .block-container {{
             padding-top: 1rem;
             max-width: 1200px;
@@ -97,11 +103,25 @@ def get_css():
             color: {current_theme["primary"]};
             font-weight: 600;
         }}
+
+        p {{
+            color: {current_theme["text"]};
+        }}
+        
+        /* Input elements styling */
+        .stTextInput input, .stTextArea textarea, .stSelectbox div[data-baseweb="select"] > div:first-child {{
+            background-color: {current_theme["output_bg"]} !important;
+            color: {current_theme["text"]} !important;
+            border-radius: 0.5rem !important;
+            border-color: {current_theme["output_border"]} !important;
+        }}
         
         .stTextArea textarea {{
-            font-size: 1rem;
-            border-radius: 0.5rem;
-            border-color: {current_theme["output_border"]};
+            font-size: 1rem; /* Existing style */
+        }}
+
+        .stSlider {{ /* Slider track and thumb styling */
+            color: {current_theme["primary"]}; /* Affects the color of the slider track and thumb */
         }}
         
         /* 输出区域样式 */
@@ -151,14 +171,21 @@ def get_css():
         
         .stTabs [data-baseweb="tab"] {{
             background-color: {current_theme["output_bg"]};
+            color: {current_theme["text"]}; /* Ensure tab text color contrasts with tab background */
             border-radius: 4px 4px 0px 0px;
             padding: 0.5rem 1rem;
             font-weight: 500;
         }}
         
+        .stTabs [data-baseweb="tab"][aria-selected="true"] {{
+            background-color: {current_theme["primary"]};
+            color: {current_theme["background"]}; /* Text color for selected tab */
+        }}
+
         /* 侧边栏样式 */
         .sidebar .sidebar-content {{
             padding: 1rem;
+            background-color: {current_theme["background"]}; /* Ensure sidebar bg matches theme */
         }}
         
         /* 动画效果 */
@@ -357,15 +384,39 @@ with st.sidebar:
             masked_key = current_key[:4] + "..." + current_key[-4:] if len(current_key) > 8 else "***"
             st.info(f"当前密钥: {masked_key}")
     
-    api_key = st.text_input("API密钥", value=config["api_key"], type="password", key="api_key")
-    api_provider = st.selectbox("API提供商", ["deepseek", "openai"], index=0 if config["api_provider"] == "deepseek" else 1)
+    api_key = st.text_input("API密钥", value=config.get("api_key", ""), type="password", key="api_key_input") # Changed key to avoid conflict
+    
+    provider_options = ["deepseek", "openai", "claude"]
+    current_provider_index = 0
+    if config.get("api_provider") in provider_options:
+        current_provider_index = provider_options.index(config["api_provider"])
+        
+    api_provider = st.selectbox("API提供商", provider_options, index=current_provider_index)
     
     # 根据API提供商显示相应的模型选择
     models = {
         "deepseek": ["deepseek-chat", "deepseek-coder"],
-        "openai": ["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo"]
+        "openai": ["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo"],
+        "claude": [
+            "claude-3-opus-20240229",
+            "claude-3-sonnet-20240229",
+            "claude-3-haiku-20240307",
+            "claude-3-5-sonnet-20240620",
+            # "claude-3-7-sonnet-20250219" # Speculative future model, uncomment when available
+        ]
     }
-    model = st.selectbox("模型", models[api_provider])
+    
+    # Ensure the current model is valid for the selected provider, or default to the first available model
+    available_models = models.get(api_provider, [])
+    current_model_index = 0
+    if config.get("model") in available_models:
+        current_model_index = available_models.index(config["model"])
+    elif available_models: # Default to first model if current is not in list or list is empty
+        config["model"] = available_models[0] # Update config to reflect the actual first model
+    else: # Should not happen if models dict is comprehensive
+        st.error(f"没有为提供商 {api_provider} 配置可用模型。")
+
+    model = st.selectbox("模型", available_models, index=current_model_index)
     
     # 语言选择
     language = st.selectbox(
@@ -501,10 +552,16 @@ with tabs[0]:
         if generate_button:
             if not requirement:
                 st.error("请输入需求")
-            elif not api_key:
+            elif not config.get("api_key") and not api_key: # Check both loaded config and current input
                 st.error("请在侧边栏设置API密钥")
             else:
                 try:
+                    # Use the API key from input if provided, otherwise from loaded config
+                    current_api_key_to_use = api_key if api_key else config.get("api_key")
+                    if not current_api_key_to_use:
+                        st.error("API密钥丢失，请在侧边栏重新输入并保存。")
+                        st.stop()
+
                     with st.spinner("正在生成提示..."):
                         # 增加功能参数
                         extra_params = {}
@@ -515,9 +572,9 @@ with tabs[0]:
                         
                         # 初始化提示工程师
                         prompt_engineer = PromptEngineer(
-                            api_key=api_key,
-                            model_name=model,
-                            api_provider=api_provider
+                            api_key=current_api_key_to_use,
+                            model_name=model, # This is the model selected in the UI
+                            api_provider=api_provider # This is the provider selected in the UI
                         )
                         
                         # 根据选择的格式生成提示
@@ -564,8 +621,8 @@ with tabs[0]:
                     st.error(f"生成提示时出错: {e}")
         else:
             # 当没有生成内容时显示的占位内容
-            st.markdown("""
-            <div style="text-align:center;padding:50px 0;color:#888;">
+            st.markdown(f"""
+            <div style="text-align:center;padding:50px 0;color:{current_theme["text"]}a0;"> 
                 <span style="font-size:3em;">✨</span>
                 <p>您生成的提示将显示在这里</p>
                 <p style="font-size:0.9em;">点击"生成提示"按钮开始</p>
@@ -620,7 +677,7 @@ with tabs[1]:
                 st.markdown(f"""
                 <p>
                     {get_format_badge(history_item['format'])}
-                    <span style="margin-left:10px;font-size:0.9em;color:#666;">模型: {history_item['model']}</span>
+                    <span style="margin-left:10px;font-size:0.9em;color:{current_theme["text"]}a0;">模型: {history_item['model']}</span>
                 </p>
                 <p><strong>需求:</strong> {history_item['requirement']}</p>
                 <div class="output-area">
@@ -721,6 +778,6 @@ with tabs[2]:
 st.markdown("---")
 footer_cols = st.columns([3, 1])
 with footer_cols[0]:
-    st.markdown("<p style='color:#888;'>© 2023 AI提示工程师 | 由自动提示词工程助力</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='color:{current_theme['text']}a0;'>© 2023 AI提示工程师 | 由自动提示词工程助力</p>", unsafe_allow_html=True)
 with footer_cols[1]:
-    st.markdown("<p style='text-align:right;color:#888;'>版本 2.0</p>", unsafe_allow_html=True) 
+    st.markdown(f"<p style='text-align:right;color:{current_theme['text']}a0;'>版本 2.0</p>", unsafe_allow_html=True)

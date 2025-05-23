@@ -241,8 +241,9 @@ def get_provider_url(provider: str) -> str:
     provider_urls = {
         "deepseek": "https://platform.deepseek.com",
         "openai": "https://platform.openai.com/api-keys",
+        "claude": "https://console.anthropic.com/settings/keys",
     }
-    return provider_urls.get(provider, "提供商官方网站")
+    return provider_urls.get(provider.lower(), "提供商官方网站")
 
 
 def get_api_config() -> Dict[str, Any]:
@@ -297,7 +298,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="API密钥管理工具")
     parser.add_argument("--set", help="设置API密钥", action="store_true")
     parser.add_argument("--get", help="获取当前API密钥", action="store_true")
-    parser.add_argument("--provider", help="API提供商 (deepseek或openai)", default="deepseek")
+    parser.add_argument("--provider", help="API提供商 (deepseek, openai, or claude)", 
+                        choices=['deepseek', 'openai', 'claude'], default="deepseek")
     parser.add_argument("--create-template", help="创建配置模板文件", action="store_true")
     
     args = parser.parse_args()

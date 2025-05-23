@@ -149,6 +149,15 @@ python batch_process.py --input requirements.csv --output results
 python prompt_engineer.py "总结最新的AI研究趋势" | python send_to_api.py
 ```
 
+### 使用Anthropic Claude API
+
+通过指定API提供商为`claude`和选择一个Claude模型来使用Anthropic Claude API：
+
+```bash
+python prompt_engineer.py "能否介绍一下大型语言模型的主要应用场景？" --api-provider claude --model claude-3-sonnet-20240229
+```
+此命令将使用Anthropic Claude API通过`claude-3-sonnet-20240229`模型生成关于大型语言模型主要应用场景的提示。
+
 ## 高级用法技巧
 
 ### 提示链接

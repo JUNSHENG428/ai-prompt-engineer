@@ -6,11 +6,12 @@
 
 ## 功能特点
 
-- **直观美观的UI**：现代化设计，多种主题选择
+- **直观美观的UI**：现代化设计，多种主题选择（包括暗黑模式）
+- **暗黑模式支持**：新增暗黑模式，提供更舒适的视觉体验 (可在侧边栏主题选择器中切换)。
 - **三种提示格式**：标准格式、专家讨论、带示例模式
 - **历史记录**：保存和管理您生成的所有提示词
 - **自定义设置**：灵活配置API参数和生成选项
-- **多模型支持**：兼容DeepSeek和OpenAI的多种模型
+- **多模型支持**：兼容DeepSeek、OpenAI及Anthropic Claude的多种模型
 - **跨平台**：基于Web技术，可在任何设备上运行
 
 ## 组件
@@ -55,18 +56,21 @@ Linux/macOS:
 ```bash
 export DEEPSEEK_API_KEY="your_api_key_here"
 export OPENAI_API_KEY="your_api_key_here"
+export CLAUDE_API_KEY="your_claude_api_key_here"
 ```
 
 Windows (CMD):
 ```cmd
 set DEEPSEEK_API_KEY=your_api_key_here
 set OPENAI_API_KEY=your_api_key_here
+set CLAUDE_API_KEY=your_claude_api_key_here
 ```
 
 Windows (PowerShell):
 ```powershell
 $env:DEEPSEEK_API_KEY="your_api_key_here"
 $env:OPENAI_API_KEY="your_api_key_here"
+$env:CLAUDE_API_KEY="your_claude_api_key_here"
 ```
 
 ### 方法2：使用.env文件
@@ -80,6 +84,7 @@ cp .env.example .env
 ```
 DEEPSEEK_API_KEY=your_deepseek_api_key_here
 OPENAI_API_KEY=your_openai_api_key_here
+CLAUDE_API_KEY=your_claude_api_key_here
 ```
 
 ### 方法3：使用Streamlit secrets
@@ -95,6 +100,7 @@ touch .streamlit/secrets.toml
 ```toml
 DEEPSEEK_API_KEY = "your_deepseek_api_key_here"
 OPENAI_API_KEY = "your_openai_api_key_here"
+CLAUDE_API_KEY = "your_claude_api_key_here"
 ```
 
 ### 方法4：使用API密钥管理工具
@@ -103,6 +109,8 @@ OPENAI_API_KEY = "your_openai_api_key_here"
 
 ```bash
 python api_secrets.py --set --provider deepseek
+# 或者 openai, claude
+python api_secrets.py --set --provider claude
 ```
 
 此工具会安全地提示您输入密钥，并指导您选择最安全的存储方式。
@@ -137,7 +145,7 @@ streamlit run streamlit_app.py
 使用图形界面:
 1. 在左侧输入框中输入你的需求
 2. 选择提示格式（标准、专家讨论或带示例）
-3. 配置API设置（API密钥、提供商、模型）
+3. 配置API设置（API密钥、提供商(如DeepSeek, OpenAI, Claude)、模型）
 4. 点击"生成提示"按钮
 5. 生成的提示将显示在右侧，可以复制或下载
 
@@ -167,12 +175,21 @@ python prompt_engineer.py "设计一个可持续发展的智能城市" --format 
 python prompt_engineer.py "为产品创建客户推荐" --format examples --examples examples.json
 ```
 
-## 使用Deepseek API
+## 使用不同API提供商
 
 使用Deepseek API生成提示：
-
 ```bash
 python prompt_engineer.py "分析市场趋势" --api-provider deepseek --model deepseek-chat
+```
+
+使用OpenAI API生成提示：
+```bash
+python prompt_engineer.py "撰写一篇关于太空探索的博客文章" --api-provider openai --model gpt-3.5-turbo
+```
+
+使用Anthropic Claude API生成提示：
+```bash
+python prompt_engineer.py "总结人工智能的最新进展" --api-provider claude --model claude-3-opus-20240229
 ```
 
 ## 将项目上传到GitHub时的安全建议

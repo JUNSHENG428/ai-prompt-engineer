@@ -51,8 +51,12 @@ python api_secrets.py --set --provider deepseek
 # 设置OpenAI API密钥
 python api_secrets.py --set --provider openai
 
+# 设置Claude API密钥
+python api_secrets.py --set --provider claude
+
 # 检查当前设置的密钥 
 python api_secrets.py --get --provider deepseek
+# (也可以使用 --provider openai 或 --provider claude)
 ```
 
 此工具会提示您输入API密钥，并提供多种安全存储选项。
@@ -65,12 +69,14 @@ python api_secrets.py --get --provider deepseek
 ```bash
 export DEEPSEEK_API_KEY="your_api_key_here"
 export OPENAI_API_KEY="your_api_key_here"
+export CLAUDE_API_KEY="your_claude_api_key_here"
 ```
 
 永久设置：
 ```bash
 echo 'export DEEPSEEK_API_KEY="your_api_key_here"' >> ~/.bashrc
 echo 'export OPENAI_API_KEY="your_api_key_here"' >> ~/.bashrc
+echo 'export CLAUDE_API_KEY="your_claude_api_key_here"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
@@ -80,12 +86,14 @@ source ~/.bashrc
 ```cmd
 set DEEPSEEK_API_KEY=your_api_key_here
 set OPENAI_API_KEY=your_api_key_here
+set CLAUDE_API_KEY=your_claude_api_key_here
 ```
 
 永久设置：
 ```cmd
 setx DEEPSEEK_API_KEY "your_api_key_here"
 setx OPENAI_API_KEY "your_api_key_here"
+setx CLAUDE_API_KEY "your_claude_api_key_here"
 ```
 
 #### Windows PowerShell
@@ -94,12 +102,14 @@ setx OPENAI_API_KEY "your_api_key_here"
 ```powershell
 $env:DEEPSEEK_API_KEY="your_api_key_here"
 $env:OPENAI_API_KEY="your_api_key_here"
+$env:CLAUDE_API_KEY="your_claude_api_key_here"
 ```
 
 永久设置：
 ```powershell
 [Environment]::SetEnvironmentVariable("DEEPSEEK_API_KEY", "your_api_key_here", "User")
 [Environment]::SetEnvironmentVariable("OPENAI_API_KEY", "your_api_key_here", "User")
+[Environment]::SetEnvironmentVariable("CLAUDE_API_KEY", "your_claude_api_key_here", "User")
 ```
 
 ### 方法三：使用.env文件
@@ -113,6 +123,7 @@ cp .env.example .env
 ```
 DEEPSEEK_API_KEY=your_deepseek_api_key_here
 OPENAI_API_KEY=your_openai_api_key_here
+CLAUDE_API_KEY=your_claude_api_key_here
 ```
 
 ### 方法四：Streamlit Secrets（仅Streamlit应用）
@@ -126,6 +137,7 @@ mkdir -p .streamlit
 ```bash
 echo 'DEEPSEEK_API_KEY = "your_deepseek_api_key_here"' > .streamlit/secrets.toml
 echo 'OPENAI_API_KEY = "your_openai_api_key_here"' >> .streamlit/secrets.toml
+echo 'CLAUDE_API_KEY = "your_claude_api_key_here"' >> .streamlit/secrets.toml
 ```
 
 ### 方法五：使用配置文件（不推荐用于生产环境）
@@ -161,6 +173,13 @@ cp config.template.json config.json
 2. 注册或登录您的OpenAI账户
 3. 创建新的API密钥
 
+### 获取Anthropic Claude API密钥
+
+1. 访问 [Anthropic Console](https://console.anthropic.com/settings/keys)
+2. 注册或登录您的Anthropic账户
+3. 导航到API密钥部分 (通常在账户设置或API设置中)
+4. 创建新的API密钥
+
 ## 启动应用
 
 ### 使用Streamlit界面（推荐）
@@ -171,8 +190,14 @@ streamlit run streamlit_app.py
 
 ### 使用命令行工具
 
+生成标准格式的提示 (默认使用config.json中或环境变量中设置的提供商):
 ```bash
 python prompt_engineer.py "您的需求描述" --format standard
+```
+
+指定API提供商和模型 (示例使用Claude):
+```bash
+python prompt_engineer.py "用Claude模型分析最近的AI趋势" --api-provider claude --model claude-3-opus-20240229
 ```
 
 ## 常见问题解决

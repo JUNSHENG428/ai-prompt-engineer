@@ -8,11 +8,16 @@ import sys
 
 # 导入API密钥管理模块
 try:
-    from api_secrets import get_api_key, prompt_for_api_key
+    from secure_api_manager import get_api_key
+    SECURE_API_AVAILABLE = True
 except ImportError:
-    print("警告: 未找到API密钥管理模块 (api_secrets.py)，将使用基本方法获取API密钥")
-    get_api_key = lambda provider: os.environ.get(f"{provider.upper()}_API_KEY")
-    prompt_for_api_key = lambda provider: None
+    try:
+        from api_secrets import get_api_key
+        SECURE_API_AVAILABLE = False
+    except ImportError:
+        print("警告: 未找到API密钥管理模块，将使用基本方法获取API密钥")
+        get_api_key = lambda provider: os.environ.get(f"{provider.upper()}_API_KEY")
+        SECURE_API_AVAILABLE = False
 
 # Configure logging
 logging.basicConfig(
@@ -29,7 +34,7 @@ class PromptEngineer:
     """
     
     def __init__(self, api_key: Optional[str] = None, model_name: str = "gpt-3.5-turbo", 
-                 api_provider: str = "openai"):
+                 api_provider: str = "openai", use_mock: bool = False):
         """
         Initialize the Prompt Engineer.
         
@@ -37,19 +42,27 @@ class PromptEngineer:
             api_key: API key for the language model service
             model_name: Name of the model to use
             api_provider: Provider of the API service ('openai' or 'deepseek')
+            use_mock: Force use mock responses (for testing/demo)
         """
-        # 如果未传入API密钥，尝试自动获取
-        if not api_key:
-            api_key = get_api_key(api_provider)
-            
-            # 如果仍然未找到，提示用户输入
-            if not api_key:
-                api_key = prompt_for_api_key(api_provider)
-                
-        self.api_key = api_key
         self.model_name = model_name
         self.api_provider = api_provider.lower()
+        self.use_mock = use_mock
         
+        # 如果强制使用模拟模式，直接跳过API密钥获取
+        if use_mock:
+            self.api_key = None
+            logger.info("Using mock mode for demonstration")
+        else:
+            # 如果未传入API密钥，尝试自动获取
+            if not api_key:
+                try:
+                    api_key = get_api_key(api_provider)
+                except Exception as e:
+                    logger.debug(f"Failed to get API key: {e}")
+                    api_key = None
+            
+            self.api_key = api_key
+                
         # Set the appropriate base URL based on the provider
         if self.api_provider == "openai":
             self.base_url = "https://api.openai.com/v1/chat/completions"
@@ -261,12 +274,187 @@ The prompt should:
         # Call the API and return the response
         return self._call_api(messages, temperature, max_tokens)
 
+    def generate_coding_prompt(self, requirement: str, programming_language: str = "Python", 
+                              coding_task_type: str = "general", temperature: float = 0.3, 
+                              max_tokens: int = 1500) -> str:
+        """
+        Generate a specialized prompt for coding tasks, optimized for AI programming tools like Cursor.
+        
+        Args:
+            requirement: The coding requirement
+            programming_language: Programming language to use
+            coding_task_type: Type of coding task (general, debug, refactor, review, test)
+            temperature: Controls randomness (lower for coding tasks)
+            max_tokens: Maximum number of tokens to generate
+            
+        Returns:
+            A detailed coding prompt optimized for AI tools
+        """
+        # Define task-specific instructions
+        task_instructions = {
+            "general": "Create clean, well-documented code that follows best practices",
+            "debug": "Analyze the code for bugs, provide fixes, and explain the issues",
+            "refactor": "Improve code structure, readability, and performance while maintaining functionality",
+            "review": "Conduct a thorough code review with suggestions for improvement",
+            "test": "Write comprehensive unit tests and explain the testing strategy",
+            "optimize": "Optimize code for better performance and efficiency",
+            "document": "Add detailed documentation and comments to existing code"
+        }
+        
+        system_prompt = f"""You are an expert software engineer and coding assistant specialized in {programming_language}. 
+Your task is to create detailed, actionable coding prompts that help AI programming tools like Cursor, GitHub Copilot, 
+and other code assistants generate high-quality code.
+
+When creating coding prompts, ensure they:
+1. Specify the exact programming language and version if relevant
+2. Include clear requirements and constraints
+3. Mention best practices and coding standards
+4. Specify the expected output format (function, class, module, etc.)
+5. Include error handling and edge case considerations
+6. Mention testing requirements when appropriate"""
+
+        user_prompt = f"""Create a detailed coding prompt for the following requirement:
+
+CODING REQUIREMENT: {requirement}
+PROGRAMMING LANGUAGE: {programming_language}
+TASK TYPE: {coding_task_type}
+
+The prompt should be optimized for AI coding assistants and include:
+- Clear, specific instructions
+- Expected code structure and organization
+- Best practices for {programming_language}
+- {task_instructions.get(coding_task_type, "Complete the requested functionality")}
+- Error handling considerations
+- Code documentation requirements
+
+Make the prompt actionable and specific enough for an AI to generate production-ready code."""
+
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+        
+        return self._call_api(messages, temperature, max_tokens)
+
+    def generate_cursor_optimized_prompt(self, requirement: str, context: str = "", 
+                                       file_types: List[str] = None, temperature: float = 0.3, 
+                                       max_tokens: int = 1500) -> str:
+        """
+        Generate a prompt specifically optimized for Cursor AI editor.
+        
+        Args:
+            requirement: The development requirement
+            context: Additional context about the project
+            file_types: List of file types that will be worked with
+            temperature: Controls randomness
+            max_tokens: Maximum number of tokens to generate
+            
+        Returns:
+            A Cursor-optimized prompt
+        """
+        if file_types is None:
+            file_types = ["Python", "JavaScript", "TypeScript"]
+            
+        system_prompt = """You are an expert prompt engineer specializing in creating prompts for Cursor AI editor.
+Cursor is an AI-powered code editor that can understand project context, generate code, and assist with development tasks.
+
+When creating Cursor-optimized prompts, include:
+1. Clear project context and file structure understanding
+2. Specific instructions about which files to modify or create
+3. Code style and architecture preferences
+4. Integration requirements with existing codebase
+5. Testing and documentation expectations
+6. Step-by-step implementation guidance"""
+
+        context_section = f"PROJECT CONTEXT: {context}" if context else "PROJECT CONTEXT: Not specified"
+        file_types_section = f"RELEVANT FILE TYPES: {', '.join(file_types)}"
+
+        user_prompt = f"""Create a Cursor AI editor optimized prompt for the following requirement:
+
+DEVELOPMENT REQUIREMENT: {requirement}
+{context_section}
+{file_types_section}
+
+The prompt should help Cursor understand:
+- What files need to be created or modified
+- How the new code integrates with existing project structure
+- Specific implementation details and patterns to follow
+- Code quality and testing requirements
+- Documentation and comments needed
+
+Format the prompt to be clear and actionable for Cursor's AI capabilities."""
+
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+        
+        return self._call_api(messages, temperature, max_tokens)
+
+    def generate_architecture_prompt(self, requirement: str, system_type: str = "web_application",
+                                   technologies: List[str] = None, temperature: float = 0.5,
+                                   max_tokens: int = 2000) -> str:
+        """
+        Generate a prompt for system architecture and design tasks.
+        
+        Args:
+            requirement: The architecture requirement
+            system_type: Type of system (web_application, microservice, mobile_app, etc.)
+            technologies: List of preferred technologies
+            temperature: Controls randomness
+            max_tokens: Maximum number of tokens to generate
+            
+        Returns:
+            An architecture-focused prompt
+        """
+        if technologies is None:
+            technologies = ["React", "Node.js", "PostgreSQL", "Docker"]
+            
+        system_prompt = """You are a senior software architect and system design expert. 
+Your task is to create comprehensive prompts for designing software systems and architectures.
+
+When creating architecture prompts, include:
+1. System requirements and constraints
+2. Scalability and performance considerations
+3. Technology stack recommendations
+4. Security and compliance requirements
+5. Deployment and infrastructure considerations
+6. Monitoring and maintenance strategies"""
+
+        tech_stack_section = f"PREFERRED TECHNOLOGIES: {', '.join(technologies)}"
+
+        user_prompt = f"""Create a comprehensive system architecture prompt for:
+
+ARCHITECTURE REQUIREMENT: {requirement}
+SYSTEM TYPE: {system_type}
+{tech_stack_section}
+
+The prompt should guide the creation of:
+- High-level system architecture diagram
+- Component breakdown and responsibilities
+- Data flow and API design
+- Database schema design
+- Security considerations
+- Deployment strategy
+- Scalability plan
+- Monitoring and logging approach
+
+Make the prompt detailed enough for creating production-ready architecture documentation."""
+
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+        
+        return self._call_api(messages, temperature, max_tokens)
+
 
 def main():
     """Main function to demonstrate the Prompt Engineer."""
-    parser = argparse.ArgumentParser(description='AI Prompt Engineer')
+    parser = argparse.ArgumentParser(description='AI Prompt Engineer - Enhanced for Programming Tasks')
     parser.add_argument('requirement', type=str, nargs='?', help='User requirement for generating a prompt')
-    parser.add_argument('--format', type=str, choices=['standard', 'expert-panel', 'examples'], 
+    parser.add_argument('--format', type=str, 
+                        choices=['standard', 'expert-panel', 'examples', 'coding', 'cursor', 'architecture'], 
                         default='standard', help='Format of the prompt to generate')
     parser.add_argument('--examples', type=str, help='Path to JSON file with examples for few-shot learning')
     parser.add_argument('--api-key', type=str, help='API key for the language model service')
@@ -275,6 +463,24 @@ def main():
                        default='deepseek', help='API provider to use (openai or deepseek)')
     parser.add_argument('--temperature', type=float, default=0.7, help='Temperature (0.0-1.0) for generation')
     parser.add_argument('--max-tokens', type=int, default=1000, help='Maximum tokens to generate')
+    
+    # 新增编程相关参数
+    parser.add_argument('--programming-language', type=str, default='Python', 
+                       help='Programming language for coding prompts')
+    parser.add_argument('--coding-task-type', type=str, 
+                       choices=['general', 'debug', 'refactor', 'review', 'test', 'optimize', 'document'],
+                       default='general', help='Type of coding task')
+    parser.add_argument('--project-context', type=str, default='', 
+                       help='Project context for Cursor-optimized prompts')
+    parser.add_argument('--file-types', type=str, nargs='*', 
+                       default=['Python', 'JavaScript', 'TypeScript'],
+                       help='File types for Cursor prompts')
+    parser.add_argument('--system-type', type=str, default='web_application',
+                       help='System type for architecture prompts')
+    parser.add_argument('--technologies', type=str, nargs='*',
+                       default=['React', 'Node.js', 'PostgreSQL', 'Docker'],
+                       help='Technologies for architecture prompts')
+    
     args = parser.parse_args()
     
     # Initialize the Prompt Engineer
@@ -321,6 +527,30 @@ def main():
                 args.requirement, 
                 examples, 
                 temperature=args.temperature, 
+                max_tokens=args.max_tokens
+            )
+        elif args.format == 'coding':
+            prompt = prompt_engineer.generate_coding_prompt(
+                args.requirement,
+                programming_language=args.programming_language,
+                coding_task_type=args.coding_task_type,
+                temperature=args.temperature,
+                max_tokens=args.max_tokens
+            )
+        elif args.format == 'cursor':
+            prompt = prompt_engineer.generate_cursor_optimized_prompt(
+                args.requirement,
+                context=args.project_context,
+                file_types=args.file_types,
+                temperature=args.temperature,
+                max_tokens=args.max_tokens
+            )
+        elif args.format == 'architecture':
+            prompt = prompt_engineer.generate_architecture_prompt(
+                args.requirement,
+                system_type=args.system_type,
+                technologies=args.technologies,
+                temperature=args.temperature,
                 max_tokens=args.max_tokens
             )
         

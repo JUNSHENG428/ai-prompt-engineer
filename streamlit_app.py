@@ -6,6 +6,23 @@ import random
 import base64
 from prompt_engineer import PromptEngineer
 
+# 导入新的评估模块
+try:
+    from prompt_quality_evaluator import PromptQualityEvaluator
+    EVALUATOR_AVAILABLE = True
+except ImportError:
+    EVALUATOR_AVAILABLE = False
+    print("警告: 未找到提示质量评估模块，相关功能将不可用")
+
+# 导入编程模板和智能建议器
+try:
+    from programming_prompt_templates import get_programming_templates, list_task_types, list_ai_tools
+    from prompt_advisor import PromptAdvisor
+    PROGRAMMING_TEMPLATES_AVAILABLE = True
+except ImportError:
+    PROGRAMMING_TEMPLATES_AVAILABLE = False
+    print("警告: 未找到编程模板模块，相关功能将不可用")
+
 # 导入API密钥管理模块
 try:
     from api_secrets import get_api_key, get_api_config, save_api_key
@@ -13,6 +30,19 @@ try:
 except ImportError:
     SECRETS_MODULE_AVAILABLE = False
     print("警告: 未找到API密钥管理模块 (api_secrets.py)，将使用基本方法获取API密钥")
+
+# 检查Streamlit secrets
+def check_streamlit_secrets():
+    """检查Streamlit secrets配置"""
+    try:
+        # 尝试访问secrets
+        if hasattr(st, 'secrets') and st.secrets:
+            return True
+    except Exception:
+        pass
+    return False
+
+STREAMLIT_SECRETS_AVAILABLE = check_streamlit_secrets()
 
 # 设置页面配置
 st.set_page_config(
@@ -198,15 +228,7 @@ st.markdown(get_css(), unsafe_allow_html=True)
 
 # 辅助函数
 def load_config():
-    """从config.json加载配置"""
-    # 如果API密钥管理模块可用，优先使用
-    if SECRETS_MODULE_AVAILABLE:
-        config = get_api_config()
-        if config.get("api_key"):
-            st.sidebar.success("✅ 已加载API配置", icon="✅")
-        return config
-    
-    # 否则，使用原始方法加载配置
+    """从多个来源加载配置"""
     config = {
         "api_key": "",
         "api_provider": "deepseek",
@@ -214,13 +236,55 @@ def load_config():
         "default_format": "standard",
         "language": "zh"
     }
+    
+    # 首先尝试从config.json加载基本配置
     if os.path.exists("config.json"):
         try:
             with open("config.json", "r", encoding="utf-8") as f:
                 config.update(json.load(f))
-            st.sidebar.success("配置已从config.json加载", icon="✅")
         except Exception as e:
-            st.sidebar.error(f"加载配置失败: {e}", icon="❌")
+            st.sidebar.warning(f"加载config.json失败: {e}", icon="⚠️")
+    
+    # 然后尝试从不同来源加载API密钥
+    api_key_loaded = False
+    
+    # 1. 尝试从API密钥管理模块加载
+    if SECRETS_MODULE_AVAILABLE:
+        try:
+            api_config = get_api_config()
+            if api_config.get("api_key"):
+                config.update(api_config)
+                st.sidebar.success("✅ 已从安全存储加载API配置", icon="🔐")
+                api_key_loaded = True
+        except Exception as e:
+            st.sidebar.warning(f"从安全存储加载失败: {e}", icon="⚠️")
+    
+    # 2. 尝试从Streamlit secrets加载
+    if not api_key_loaded and STREAMLIT_SECRETS_AVAILABLE:
+        try:
+            provider = config.get("api_provider", "deepseek")
+            key_name = f"{provider.upper()}_API_KEY"
+            if key_name in st.secrets:
+                config["api_key"] = st.secrets[key_name]
+                st.sidebar.success("✅ 已从Streamlit secrets加载API密钥", icon="🔑")
+                api_key_loaded = True
+        except Exception as e:
+            st.sidebar.warning(f"从Streamlit secrets加载失败: {e}", icon="⚠️")
+    
+    # 3. 尝试从环境变量加载
+    if not api_key_loaded:
+        provider = config.get("api_provider", "deepseek")
+        env_key = f"{provider.upper()}_API_KEY"
+        env_value = os.getenv(env_key)
+        if env_value:
+            config["api_key"] = env_value
+            st.sidebar.success(f"✅ 已从环境变量加载{provider}密钥", icon="🌍")
+            api_key_loaded = True
+    
+    # 如果没有找到API密钥，显示提示
+    if not api_key_loaded and not config.get("api_key"):
+        st.sidebar.info("💡 请在侧边栏设置API密钥或使用安全存储", icon="💡")
+    
     return config
 
 def save_config(config):
@@ -305,14 +369,22 @@ def get_format_badge(format_name):
     colors = {
         "standard": "#2196F3",
         "expert-panel": "#4CAF50",
-        "examples": "#FF9800"
+        "examples": "#FF9800",
+        "coding": "#9C27B0",
+        "cursor": "#00BCD4",
+        "architecture": "#795548",
+        "programming_template": "#E91E63"
     }
     labels = {
         "standard": "标准",
         "expert-panel": "专家讨论",
-        "examples": "带示例"
+        "examples": "带示例",
+        "coding": "编程任务",
+        "cursor": "Cursor优化",
+        "architecture": "系统架构",
+        "programming_template": "编程模板"
     }
-    return f'<span style="background-color:{colors[format_name]};color:white;padding:2px 8px;border-radius:10px;font-size:0.8em;">{labels[format_name]}</span>'
+    return f'<span style="background-color:{colors.get(format_name, "#666")};color:white;padding:2px 8px;border-radius:10px;font-size:0.8em;">{labels.get(format_name, format_name)}</span>'
 
 def format_timestamp(timestamp):
     """格式化时间戳为可读格式"""
@@ -419,7 +491,14 @@ if st.session_state.show_tips:
         """, unsafe_allow_html=True)
 
 # 主要内容区域
-tabs = st.tabs(["✨ 生成提示", "📋 历史记录", "ℹ️ 使用帮助"])
+if EVALUATOR_AVAILABLE and PROGRAMMING_TEMPLATES_AVAILABLE:
+    tabs = st.tabs(["✨ 生成提示", "🧑‍💻 编程模板", "🤖 智能建议", "📊 质量评估", "📋 历史记录", "ℹ️ 使用帮助"])
+elif EVALUATOR_AVAILABLE:
+    tabs = st.tabs(["✨ 生成提示", "📊 质量评估", "📋 历史记录", "ℹ️ 使用帮助"])
+elif PROGRAMMING_TEMPLATES_AVAILABLE:
+    tabs = st.tabs(["✨ 生成提示", "🧑‍💻 编程模板", "🤖 智能建议", "📋 历史记录", "ℹ️ 使用帮助"])
+else:
+    tabs = st.tabs(["✨ 生成提示", "📋 历史记录", "ℹ️ 使用帮助"])
 
 # 生成提示标签页
 with tabs[0]:
@@ -438,15 +517,79 @@ with tabs[0]:
         format_options = {
             "standard": "标准 - 简洁明了的指导",
             "expert-panel": "专家讨论 - 多角度深入分析",
-            "examples": "带示例 - 通过示例学习模式"
+            "examples": "带示例 - 通过示例学习模式",
+            "coding": "编程任务 - 代码生成优化提示",
+            "cursor": "Cursor优化 - 专为Cursor AI编辑器设计",
+            "architecture": "系统架构 - 软件架构设计提示"
         }
         prompt_format = st.radio(
             "选择格式", 
             options=list(format_options.keys()), 
             format_func=lambda x: format_options[x],
-            horizontal=True,
+            horizontal=False,
             help="不同格式适合不同类型的内容生成需求"
         )
+        
+        # 根据选择的格式显示相应的配置选项
+        if prompt_format == "coding":
+            st.subheader("编程设置")
+            programming_language = st.selectbox(
+                "编程语言", 
+                ["Python", "JavaScript", "TypeScript", "Java", "C++", "C#", "Go", "Rust", "PHP", "Ruby"],
+                index=0,
+                help="选择要生成代码的编程语言"
+            )
+            coding_task_type = st.selectbox(
+                "任务类型",
+                ["general", "debug", "refactor", "review", "test", "optimize", "document"],
+                format_func=lambda x: {
+                    "general": "通用开发",
+                    "debug": "调试代码", 
+                    "refactor": "代码重构",
+                    "review": "代码审查",
+                    "test": "编写测试",
+                    "optimize": "性能优化",
+                    "document": "添加文档"
+                }[x],
+                help="选择具体的编程任务类型"
+            )
+        
+        elif prompt_format == "cursor":
+            st.subheader("Cursor AI 设置")
+            project_context = st.text_area(
+                "项目上下文",
+                placeholder="描述项目的背景、技术栈、文件结构等...",
+                height=100,
+                help="提供项目的详细上下文，帮助Cursor更好地理解需求"
+            )
+            file_types = st.multiselect(
+                "相关文件类型",
+                ["Python", "JavaScript", "TypeScript", "React", "Vue", "HTML", "CSS", "JSON", "Markdown"],
+                default=["Python", "JavaScript", "TypeScript"],
+                help="选择将要处理的文件类型"
+            )
+            
+        elif prompt_format == "architecture":
+            st.subheader("架构设计设置")
+            system_type = st.selectbox(
+                "系统类型",
+                ["web_application", "microservice", "mobile_app", "desktop_app", "api_service", "data_pipeline"],
+                format_func=lambda x: {
+                    "web_application": "Web应用",
+                    "microservice": "微服务",
+                    "mobile_app": "移动应用",
+                    "desktop_app": "桌面应用",
+                    "api_service": "API服务",
+                    "data_pipeline": "数据管道"
+                }[x],
+                help="选择要设计的系统类型"
+            )
+            technologies = st.multiselect(
+                "技术栈",
+                ["React", "Vue", "Angular", "Node.js", "Django", "FastAPI", "PostgreSQL", "MongoDB", "Redis", "Docker", "Kubernetes", "AWS", "Azure"],
+                default=["React", "Node.js", "PostgreSQL", "Docker"],
+                help="选择项目使用的技术栈"
+            )
         
         # 如果选择了示例格式，显示示例文件上传
         examples = None
@@ -531,6 +674,30 @@ with tabs[0]:
                             prompt = prompt_engineer.generate_expert_panel_prompt(requirement)
                         elif prompt_format == "examples":
                             prompt = prompt_engineer.generate_prompt_with_examples(requirement, examples)
+                        elif prompt_format == "coding":
+                            prompt = prompt_engineer.generate_coding_prompt(
+                                requirement, 
+                                programming_language=programming_language, 
+                                coding_task_type=coding_task_type,
+                                temperature=temperature,
+                                max_tokens=max_tokens
+                            )
+                        elif prompt_format == "cursor":
+                            prompt = prompt_engineer.generate_cursor_optimized_prompt(
+                                requirement, 
+                                context=project_context, 
+                                file_types=file_types,
+                                temperature=temperature,
+                                max_tokens=max_tokens
+                            )
+                        elif prompt_format == "architecture":
+                            prompt = prompt_engineer.generate_architecture_prompt(
+                                requirement, 
+                                system_type=system_type, 
+                                technologies=technologies,
+                                temperature=temperature,
+                                max_tokens=max_tokens
+                            )
                         
                         # 添加到历史记录
                         add_to_history(requirement, prompt, prompt_format, model)
@@ -572,8 +739,465 @@ with tabs[0]:
             </div>
             """, unsafe_allow_html=True)
 
+# 编程模板标签页
+if PROGRAMMING_TEMPLATES_AVAILABLE:
+    with tabs[1]:
+        st.header("🧑‍💻 编程Prompt模板")
+        
+        st.markdown("""
+        <div class='tip-card'>
+            <strong>💡 编程模板功能</strong><br>
+            提供专门针对编程任务的Prompt模板，包括代码生成、调试、重构、测试等常见场景。
+        </div>
+        """, unsafe_allow_html=True)
+        
+        template_col1, template_col2 = st.columns([1, 1])
+        
+        with template_col1:
+            st.subheader("📋 选择模板")
+            
+            # 初始化模板管理器
+            templates_manager = get_programming_templates()
+            
+            # 任务类型筛选
+            task_types = list_task_types()
+            task_type_labels = {
+                "code_generation": "代码生成",
+                "code_review": "代码审查", 
+                "bug_fixing": "Bug修复",
+                "refactoring": "代码重构",
+                "code_explanation": "代码解释",
+                "api_design": "API设计",
+                "database_design": "数据库设计",
+                "testing": "测试编写",
+                "documentation": "文档编写",
+                "optimization": "性能优化",
+                "architecture_design": "架构设计",
+                "deployment": "部署配置"
+            }
+            
+            selected_task_type = st.selectbox(
+                "任务类型",
+                options=task_types,
+                format_func=lambda x: task_type_labels.get(x, x),
+                help="选择您要执行的编程任务类型"
+            )
+            
+            # AI工具筛选
+            ai_tools = list_ai_tools()
+            ai_tool_labels = {
+                "cursor": "Cursor",
+                "github_copilot": "GitHub Copilot",
+                "codewhisperer": "CodeWhisperer",
+                "tabnine": "TabNine",
+                "chatgpt": "ChatGPT",
+                "claude": "Claude",
+                "general": "通用"
+            }
+            
+            selected_ai_tool = st.selectbox(
+                "AI工具",
+                options=ai_tools,
+                format_func=lambda x: ai_tool_labels.get(x, x),
+                help="选择您使用的AI编程工具"
+            )
+            
+            # 获取匹配的模板
+            from programming_prompt_templates import ProgrammingTaskType, AITool
+            task_type_enum = ProgrammingTaskType(selected_task_type)
+            ai_tool_enum = AITool(selected_ai_tool)
+            
+            matching_templates = []
+            for template in templates_manager.list_all_templates():
+                if (template.task_type == task_type_enum or 
+                    template.ai_tool == ai_tool_enum or 
+                    template.ai_tool == AITool.GENERAL):
+                    matching_templates.append(template)
+            
+            if matching_templates:
+                template_names = [t.name for t in matching_templates]
+                selected_template_name = st.selectbox(
+                    "选择模板",
+                    options=template_names,
+                    help="选择最适合您需求的模板"
+                )
+                
+                # 获取选中的模板
+                selected_template = next(t for t in matching_templates if t.name == selected_template_name)
+                
+                # 显示模板信息
+                st.subheader("📄 模板信息")
+                st.write(f"**描述**: {selected_template.description}")
+                st.write(f"**任务类型**: {task_type_labels.get(selected_template.task_type.value, selected_template.task_type.value)}")
+                st.write(f"**AI工具**: {ai_tool_labels.get(selected_template.ai_tool.value, selected_template.ai_tool.value)}")
+                
+                # 显示需要的变量
+                if selected_template.variables:
+                    st.subheader("📝 需要填写的变量")
+                    template_vars = {}
+                    for var in selected_template.variables:
+                        template_vars[var] = st.text_input(
+                            f"{var}",
+                            placeholder=f"请输入{var}...",
+                            help=f"模板中的{var}变量"
+                        )
+                
+                # 显示使用技巧
+                if selected_template.tips:
+                    with st.expander("💡 使用技巧", expanded=False):
+                        for tip in selected_template.tips:
+                            st.info(tip)
+                
+                # 显示示例
+                if selected_template.examples:
+                    with st.expander("📚 使用示例", expanded=False):
+                        for example in selected_template.examples:
+                            st.code(example)
+            else:
+                st.warning("没有找到匹配的模板")
+        
+        with template_col2:
+            st.subheader("✨ 生成的Prompt")
+            
+            if 'selected_template' in locals() and selected_template:
+                generate_template_button = st.button(
+                    "🚀 生成Prompt",
+                    type="primary",
+                    use_container_width=True,
+                    help="基于模板和您的输入生成Prompt"
+                )
+                
+                if generate_template_button:
+                    try:
+                        # 检查是否所有必需变量都已填写
+                        missing_vars = [var for var in selected_template.variables if not template_vars.get(var)]
+                        if missing_vars:
+                            st.error(f"请填写以下必需变量: {', '.join(missing_vars)}")
+                        else:
+                            # 生成模板ID
+                            template_id = list(templates_manager.templates.keys())[
+                                list(templates_manager.templates.values()).index(selected_template)
+                            ]
+                            
+                            # 生成Prompt
+                            generated_prompt = templates_manager.generate_prompt(template_id, **template_vars)
+                            
+                            # 显示生成的Prompt
+                            st.markdown(f"""
+                            <div class='output-area'>
+                                <h4>生成的Prompt:</h4>
+                                <pre style="white-space: pre-wrap; font-family: 'Courier New', monospace;">{generated_prompt}</pre>
+                            </div>
+                            """, unsafe_allow_html=True)
+                            
+                            # 复制按钮
+                            st.code(generated_prompt, language="text")
+                            
+                            # 添加到历史记录
+                            requirement_summary = f"使用模板: {selected_template.name}"
+                            add_to_history(requirement_summary, generated_prompt, "programming_template", "Template")
+                            
+                            st.success("✅ Prompt已生成并添加到历史记录")
+                    
+                    except Exception as e:
+                        st.error(f"生成Prompt时出错: {e}")
+            else:
+                st.markdown("""
+                <div style="text-align:center;padding:50px 0;color:#888;">
+                    <span style="font-size:3em;">🧑‍💻</span>
+                    <p>生成的Prompt将显示在这里</p>
+                    <p style="font-size:0.9em;">选择模板并填写变量后点击生成</p>
+                </div>
+                """, unsafe_allow_html=True)
+
+# 智能建议标签页
+if PROGRAMMING_TEMPLATES_AVAILABLE:
+    with tabs[2]:
+        st.header("🤖 智能Prompt建议")
+        
+        st.markdown("""
+        <div class='tip-card'>
+            <strong>💡 智能建议功能</strong><br>
+            分析您的编程需求，自动推荐最适合的模板和改进建议，让您的Prompt更加精准有效。
+        </div>
+        """, unsafe_allow_html=True)
+        
+        advisor_col1, advisor_col2 = st.columns([1, 1])
+        
+        with advisor_col1:
+            st.subheader("📝 描述您的需求")
+            
+            user_requirement = st.text_area(
+                "详细描述您的编程需求",
+                height=200,
+                placeholder="例如：我想用Python创建一个函数来处理CSV文件数据，需要读取、清洗和分析数据...",
+                help="越详细的描述能获得越准确的建议"
+            )
+            
+            analyze_button = st.button(
+                "🔍 分析需求",
+                type="primary",
+                use_container_width=True,
+                help="分析您的需求并提供智能建议"
+            )
+        
+        with advisor_col2:
+            st.subheader("🎯 智能分析结果")
+            
+            if analyze_button and user_requirement:
+                try:
+                    with st.spinner("正在分析您的需求..."):
+                        advisor = PromptAdvisor()
+                        result = advisor.analyze_and_recommend(user_requirement)
+                        
+                        # 显示分析结果
+                        analysis = result["analysis"]
+                        
+                        st.markdown(f"""
+                        <div style="background-color:{current_theme["output_bg"]};padding:15px;border-radius:8px;margin-bottom:15px;">
+                            <h4>🔍 需求分析</h4>
+                            <p><strong>任务类型:</strong> {task_type_labels.get(analysis['task_type'], analysis['task_type'])} 
+                               <span style="color:{current_theme['accent']};font-size:0.9em;">(置信度: {analysis['confidence']:.1%})</span></p>
+                            <p><strong>编程语言:</strong> {analysis['language']}</p>
+                            <p><strong>AI工具:</strong> {ai_tool_labels.get(analysis['ai_tool'], analysis['ai_tool'])}</p>
+                            <p><strong>复杂度:</strong> {analysis['complexity']}</p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                        # 显示关键词
+                        if analysis["keywords"]:
+                            st.markdown("**🏷️ 识别的关键词:**")
+                            keywords_html = " ".join([f"<span style='background-color:{current_theme['primary']};color:white;padding:2px 8px;border-radius:12px;font-size:0.8em;margin:2px;'>{kw}</span>" for kw in analysis["keywords"]])
+                            st.markdown(keywords_html, unsafe_allow_html=True)
+                        
+                        # 显示缺失信息
+                        if analysis["missing_info"]:
+                            st.markdown("**⚠️ 建议补充的信息:**")
+                            for info in analysis["missing_info"]:
+                                st.warning(f"• {info}", icon="💡")
+                        
+                        # 显示推荐模板
+                        st.subheader("📋 推荐模板")
+                        recommendations = result["recommendations"]
+                        
+                        if recommendations:
+                            for i, rec in enumerate(recommendations, 1):
+                                with st.expander(f"推荐 {i}: {rec['template_name']} (相关性: {rec['relevance_score']:.1%})", expanded=i==1):
+                                    # 推荐理由
+                                    if rec["reasons"]:
+                                        st.markdown("**推荐理由:**")
+                                        for reason in rec["reasons"]:
+                                            st.success(f"• {reason}", icon="✅")
+                                    
+                                    # 改进建议
+                                    if rec["improvements"]:
+                                        st.markdown("**改进建议:**")
+                                        for improvement in rec["improvements"]:
+                                            st.info(f"• {improvement}", icon="💡")
+                                    
+                                    # 示例Prompt预览
+                                    st.markdown("**Prompt预览:**")
+                                    st.code(rec["example_prompt"], language="text")
+                                    
+                                    # 使用此模板按钮
+                                    if st.button(f"使用模板: {rec['template_name']}", key=f"use_template_{i}"):
+                                        st.session_state.selected_template_id = rec['template_id']
+                                        st.success(f"已选择模板: {rec['template_name']}")
+                                        st.info("请切换到'编程模板'标签页继续配置")
+                        else:
+                            st.warning("未找到匹配的模板推荐")
+                        
+                        # 显示通用建议
+                        if result["tips"]:
+                            st.subheader("💡 使用建议")
+                            for tip in result["tips"]:
+                                st.info(tip)
+                
+                except Exception as e:
+                    st.error(f"分析过程中出错: {e}")
+            
+            elif analyze_button and not user_requirement:
+                st.error("请输入您的编程需求")
+            
+            else:
+                st.markdown("""
+                <div style="text-align:center;padding:50px 0;color:#888;">
+                    <span style="font-size:3em;">🤖</span>
+                    <p>智能分析结果将显示在这里</p>
+                    <p style="font-size:0.9em;">描述您的需求并点击"分析需求"</p>
+                </div>
+                """, unsafe_allow_html=True)
+
+# 质量评估标签页
+tab_index = 3 if PROGRAMMING_TEMPLATES_AVAILABLE else 1
+if EVALUATOR_AVAILABLE:
+    with tabs[tab_index]:
+        st.header("📊 提示质量评估")
+        
+        st.markdown("""
+        <div class='tip-card'>
+            <strong>💡 质量评估功能</strong><br>
+            评估您生成的提示词质量，从清晰度、具体性、完整性、结构性和可操作性五个维度进行分析，并提供改进建议。
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # 评估输入
+        eval_col1, eval_col2 = st.columns([1, 1])
+        
+        with eval_col1:
+            st.subheader("📝 输入评估内容")
+            
+            # 选择评估来源
+            eval_source = st.radio(
+                "选择评估来源",
+                ["手动输入", "从历史记录选择"],
+                horizontal=True
+            )
+            
+            if eval_source == "手动输入":
+                prompt_to_evaluate = st.text_area(
+                    "要评估的提示词",
+                    height=200,
+                    placeholder="在此输入您想要评估的提示词...",
+                    help="输入完整的提示词内容"
+                )
+                original_requirement = st.text_input(
+                    "原始需求（可选）",
+                    placeholder="输入生成此提示词的原始需求...",
+                    help="提供原始需求有助于更准确的评估"
+                )
+            else:
+                if st.session_state.history:
+                    selected_history = st.selectbox(
+                        "选择历史记录",
+                        options=range(len(st.session_state.history)),
+                        format_func=lambda x: f"{st.session_state.history[x]['requirement'][:50]}... ({format_timestamp(st.session_state.history[x]['timestamp'])})"
+                    )
+                    prompt_to_evaluate = st.session_state.history[selected_history]['prompt']
+                    original_requirement = st.session_state.history[selected_history]['requirement']
+                    
+                    st.text_area(
+                        "提示词预览",
+                        value=prompt_to_evaluate,
+                        height=150,
+                        disabled=True
+                    )
+                else:
+                    st.info("暂无历史记录可供选择")
+                    prompt_to_evaluate = ""
+                    original_requirement = ""
+            
+            # 评估按钮
+            evaluate_button = st.button(
+                "🔍 开始评估",
+                type="primary",
+                use_container_width=True,
+                help="对提示词进行质量评估"
+            )
+        
+        with eval_col2:
+            st.subheader("📋 评估结果")
+            
+            if evaluate_button and prompt_to_evaluate:
+                try:
+                    with st.spinner("正在评估提示质量..."):
+                        evaluator = PromptQualityEvaluator()
+                        report = evaluator.evaluate_prompt(prompt_to_evaluate, original_requirement)
+                        
+                        # 显示总体评分
+                        st.markdown(f"""
+                        <div style="text-align:center;padding:20px;background-color:{current_theme["output_bg"]};border-radius:10px;margin-bottom:20px;">
+                            <h2 style="color:{current_theme["primary"]};margin:0;">总体评分</h2>
+                            <h1 style="font-size:3em;margin:10px 0;color:{current_theme["accent"]};">{report.overall_score}/10</h1>
+                            <h3 style="margin:0;color:{current_theme["text"]};">等级: {report.grade}</h3>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                        # 详细评分
+                        st.subheader("📊 详细评分")
+                        metric_names = {
+                            "clarity": "清晰度",
+                            "specificity": "具体性", 
+                            "completeness": "完整性",
+                            "structure": "结构性",
+                            "actionability": "可操作性"
+                        }
+                        
+                        for score in report.scores:
+                            metric_name = metric_names.get(score.metric.value, score.metric.value)
+                            
+                            # 创建进度条颜色
+                            if score.score >= 8:
+                                bar_color = "#4CAF50"  # 绿色
+                            elif score.score >= 6:
+                                bar_color = "#FF9800"  # 橙色
+                            else:
+                                bar_color = "#F44336"  # 红色
+                            
+                            st.markdown(f"""
+                            <div style="margin-bottom:15px;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;">
+                                    <strong>{metric_name}</strong>
+                                    <span style="font-weight:bold;color:{bar_color};">{score.score}/10</span>
+                                </div>
+                                <div style="background-color:#E0E0E0;border-radius:10px;height:8px;margin:5px 0;">
+                                    <div style="background-color:{bar_color};height:100%;border-radius:10px;width:{score.score*10}%;"></div>
+                                </div>
+                                <small style="color:#666;">{score.explanation}</small>
+                            </div>
+                            """, unsafe_allow_html=True)
+                        
+                        # 优势和改进建议
+                        col_strengths, col_improvements = st.columns(2)
+                        
+                        with col_strengths:
+                            if report.strengths:
+                                st.subheader("✅ 优势")
+                                for strength in report.strengths:
+                                    st.success(strength, icon="✅")
+                        
+                        with col_improvements:
+                            if report.improvements:
+                                st.subheader("🔧 改进建议")
+                                for i, improvement in enumerate(report.improvements, 1):
+                                    st.warning(f"{i}. {improvement}", icon="💡")
+                        
+                        # 详细报告下载
+                        detailed_report = evaluator.generate_detailed_report(report)
+                        st.download_button(
+                            label="📄 下载详细评估报告",
+                            data=detailed_report,
+                            file_name=f"prompt_evaluation_{int(time.time())}.md",
+                            mime="text/markdown",
+                            use_container_width=True
+                        )
+                        
+                except Exception as e:
+                    st.error(f"评估过程中出错: {e}")
+            
+            elif evaluate_button and not prompt_to_evaluate:
+                st.error("请输入要评估的提示词")
+            
+            else:
+                st.markdown("""
+                <div style="text-align:center;padding:50px 0;color:#888;">
+                    <span style="font-size:3em;">📊</span>
+                    <p>评估结果将显示在这里</p>
+                    <p style="font-size:0.9em;">输入提示词并点击"开始评估"</p>
+                </div>
+                """, unsafe_allow_html=True)
+
 # 历史记录标签页
-with tabs[1]:
+if PROGRAMMING_TEMPLATES_AVAILABLE and EVALUATOR_AVAILABLE:
+    history_tab_index = 4
+elif PROGRAMMING_TEMPLATES_AVAILABLE:
+    history_tab_index = 3
+elif EVALUATOR_AVAILABLE:
+    history_tab_index = 2
+else:
+    history_tab_index = 1
+
+with tabs[history_tab_index]:
     st.header("📋 您的生成历史")
     
     if not st.session_state.history:
@@ -582,10 +1206,19 @@ with tabs[1]:
         # 历史记录筛选
         filter_col1, filter_col2, filter_col3 = st.columns(3)
         with filter_col1:
+            all_formats = list(set(item["format"] for item in st.session_state.history))
+            format_labels = {
+                "standard": "标准", 
+                "expert-panel": "专家讨论", 
+                "examples": "带示例",
+                "coding": "编程任务",
+                "cursor": "Cursor优化", 
+                "architecture": "系统架构"
+            }
             format_filter = st.multiselect(
                 "按格式筛选", 
-                options=["standard", "expert-panel", "examples"],
-                format_func=lambda x: {"standard": "标准", "expert-panel": "专家讨论", "examples": "带示例"}[x]
+                options=all_formats,
+                format_func=lambda x: format_labels.get(x, x)
             )
         with filter_col2:
             model_filter = st.multiselect(
@@ -655,7 +1288,16 @@ with tabs[1]:
                     st.rerun()
 
 # 使用帮助标签页
-with tabs[2]:
+if PROGRAMMING_TEMPLATES_AVAILABLE and EVALUATOR_AVAILABLE:
+    help_tab_index = 5
+elif PROGRAMMING_TEMPLATES_AVAILABLE:
+    help_tab_index = 4
+elif EVALUATOR_AVAILABLE:
+    help_tab_index = 3
+else:
+    help_tab_index = 2
+
+with tabs[help_tab_index]:
     st.header("ℹ️ 使用指南")
     
     st.subheader("🔍 什么是AI提示工程师?")
@@ -670,6 +1312,9 @@ with tabs[2]:
        - **标准格式**: 简洁明了的指导，适合大多数场景
        - **专家讨论**: 模拟专家小组讨论，提供多角度分析，适合复杂话题
        - **带示例**: 包含示例的提示，帮助AI理解特定模式
+       - **编程任务**: 专为代码生成、调试、重构等编程任务优化
+       - **Cursor优化**: 专门为Cursor AI编辑器设计的提示格式
+       - **系统架构**: 用于软件系统架构设计和技术规划
     3. **配置API** - 在侧边栏中设置您的API密钥和模型
     4. **生成提示** - 点击"生成提示"按钮
     5. **使用结果** - 复制或下载生成的提示词，用于您的AI交互
@@ -694,6 +1339,29 @@ with tabs[2]:
         - 特定格式的内容生成
         - 希望保持一致风格的创作
         - 教学或解释复杂概念
+        
+        ### 编程任务格式
+        专为软件开发优化，支持多种编程场景:
+        - 代码生成和实现
+        - 代码调试和修复
+        - 代码重构和优化
+        - 代码审查和测试
+        - 技术文档编写
+        
+        ### Cursor优化格式
+        专门为Cursor AI编辑器设计，包含:
+        - 项目上下文理解
+        - 文件结构集成
+        - 代码风格保持
+        - 逐步实现指导
+        
+        ### 系统架构格式
+        用于软件系统设计，涵盖:
+        - 高层架构设计
+        - 技术栈选择
+        - 数据库设计
+        - 安全性考虑
+        - 部署和扩展策略
         """)
     
     with st.expander("💡 提示技巧"):

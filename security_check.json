@@ -1,0 +1,1046 @@
+{
+  "scan_time": "2025-05-28T01:19:59.566068",
+  "project_path": "/Users/junshengma/aiprompt/ai-prompt-engineer",
+  "summary": {
+    "critical": 10,
+    "high": 95,
+    "medium": 9,
+    "low": 0
+  },
+  "issues": [
+    {
+      "severity": "critical",
+      "category": "secret_leak",
+      "description": "发现可能的OpenAI API密钥",
+      "file_path": "test_new_features.py",
+      "line_number": 212,
+      "context": "valid_key = \"sk-1234567890abcdef1234567890abcdef1234567890abcdef\"",
+      "recommendation": "移除硬编码的OpenAI API密钥，使用环境变量或安全存储"
+    },
+    {
+      "severity": "critical",
+      "category": "secret_leak",
+      "description": "发现可能的DeepSeek API密钥",
+      "file_path": "test_new_features.py",
+      "line_number": 212,
+      "context": "valid_key = \"sk-1234567890abcdef1234567890abcdef1234567890abcdef\"",
+      "recommendation": "移除硬编码的DeepSeek API密钥，使用环境变量或安全存储"
+    },
+    {
+      "severity": "critical",
+      "category": "secret_leak",
+      "description": "发现可能的OpenAI API密钥",
+      "file_path": "test_new_features.py",
+      "line_number": 243,
+      "context": "f.write('API_KEY = \"sk-1234567890abcdef1234567890abcdef1234567890abcdef\"\\n')",
+      "recommendation": "移除硬编码的OpenAI API密钥，使用环境变量或安全存储"
+    },
+    {
+      "severity": "critical",
+      "category": "secret_leak",
+      "description": "发现可能的DeepSeek API密钥",
+      "file_path": "test_new_features.py",
+      "line_number": 243,
+      "context": "f.write('API_KEY = \"sk-1234567890abcdef1234567890abcdef1234567890abcdef\"\\n')",
+      "recommendation": "移除硬编码的DeepSeek API密钥，使用环境变量或安全存储"
+    },
+    {
+      "severity": "critical",
+      "category": "secret_leak",
+      "description": "发现可能的OpenAI API密钥",
+      "file_path": "test_security_scanner.py",
+      "line_number": 18,
+      "context": "API_KEY = \"sk-1234567890abcdef1234567890abcdef1234567890abcdef\"",
+      "recommendation": "移除硬编码的OpenAI API密钥，使用环境变量或安全存储"
+    },
+    {
+      "severity": "critical",
+      "category": "secret_leak",
+      "description": "发现可能的DeepSeek API密钥",
+      "file_path": "test_security_scanner.py",
+      "line_number": 18,
+      "context": "API_KEY = \"sk-1234567890abcdef1234567890abcdef1234567890abcdef\"",
+      "recommendation": "移除硬编码的DeepSeek API密钥，使用环境变量或安全存储"
+    },
+    {
+      "severity": "critical",
+      "category": "secret_leak",
+      "description": "发现可能的OpenAI API密钥",
+      "file_path": "test_security_scanner.py",
+      "line_number": 26,
+      "context": "OPENAI_API_KEY=sk-1234567890abcdef1234567890abcdef1234567890abcdef",
+      "recommendation": "移除硬编码的OpenAI API密钥，使用环境变量或安全存储"
+    },
+    {
+      "severity": "critical",
+      "category": "secret_leak",
+      "description": "发现可能的DeepSeek API密钥",
+      "file_path": "test_security_scanner.py",
+      "line_number": 26,
+      "context": "OPENAI_API_KEY=sk-1234567890abcdef1234567890abcdef1234567890abcdef",
+      "recommendation": "移除硬编码的DeepSeek API密钥，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": "test_security_scanner.py",
+      "line_number": 27,
+      "context": "DATABASE_PASSWORD=secret123",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "critical",
+      "category": "secret_leak",
+      "description": "发现可能的GitHub个人访问令牌",
+      "file_path": "test_security_scanner.py",
+      "line_number": 35,
+      "context": "\"secret_token\": \"ghp_abcdefghijklmnopqrstuvwxyz1234567890ab\"",
+      "recommendation": "移除硬编码的GitHub个人访问令牌，使用环境变量或安全存储"
+    },
+    {
+      "severity": "critical",
+      "category": "secret_leak",
+      "description": "发现可能的私钥",
+      "file_path": "test_security_scanner.py",
+      "line_number": 66,
+      "context": "f.write(\"\"\"-----BEGIN RSA PRIVATE KEY-----",
+      "recommendation": "移除硬编码的私钥，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": "secure_api_manager.py",
+      "line_number": 126,
+      "context": "password = self._get_master_password(confirm=not os.path.exists(self.key_file))",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/bin/c_rehash",
+      "line_number": 57,
+      "context": "$pwd=Cwd::getcwd();",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/zipfile.py",
+      "line_number": 1501,
+      "context": "raise TypeError(\"pwd: expected bytes, got %s\" % type(pwd).__name__)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/zipfile.py",
+      "line_number": 1618,
+      "context": "pwd = self.pwd",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/zipfile.py",
+      "line_number": 1620,
+      "context": "raise TypeError(\"pwd: expected bytes, got %s\" % type(pwd).__name__)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/nntplib.py",
+      "line_number": 322,
+      "context": "- password: password to use with username",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/netrc.py",
+      "line_number": 138,
+      "context": "password = lexer.get_token()",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/hashlib.py",
+      "line_number": 204,
+      "context": "password = bytes(memoryview(password))",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/hashlib.py",
+      "line_number": 213,
+      "context": "password = new(hash_name, password).digest()",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/cgi.py",
+      "line_number": 938,
+      "context": "pwd = os.getcwd()",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/ftplib.py",
+      "line_number": 965,
+      "context": "userid, acct, passwd = netrcobj.authenticators(host)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/imaplib.py",
+      "line_number": 629,
+      "context": "pwd = (self.password.encode('utf-8') if isinstance(self.password, str)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/imaplib.py",
+      "line_number": 1571,
+      "context": "PASSWD = getpass.getpass(\"IMAP password for %s on %s: \" % (USER, host or \"localhost\"))",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/getpass.py",
+      "line_number": 62,
+      "context": "passwd = fallback_getpass(prompt, stream)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/getpass.py",
+      "line_number": 77,
+      "context": "passwd = _raw_input(prompt, stream, input=input)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/getpass.py",
+      "line_number": 91,
+      "context": "passwd = fallback_getpass(prompt, stream)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/distutils/tests/test_register.py",
+      "line_number": 39,
+      "context": "password:password",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/distutils/tests/test_upload.py",
+      "line_number": 25,
+      "context": "password:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/distutils/command/upload.py",
+      "line_number": 66,
+      "context": "self.password = self.distribution.password",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/distutils/command/register.py",
+      "line_number": 132,
+      "context": "password = self.password",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/distutils/command/register.py",
+      "line_number": 158,
+      "context": "password = getpass.getpass('Password: ')",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/distutils/command/register.py",
+      "line_number": 175,
+      "context": "self.distribution.password = password",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 56,
+      "context": "passwd='geheim$parole')",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 786,
+      "context": "user, password = _splitpasswd(userinfo)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 901,
+      "context": "user, password = HTTPPasswordMgr.find_user_password(self, realm,",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 963,
+      "context": "self.passwd = password_mgr",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 964,
+      "context": "self.add_password = self.passwd.add_password",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 1030,
+      "context": "user, passwd = self.passwd.find_user_password(None, req.full_url)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 1093,
+      "context": "passwd = HTTPPasswordMgr()",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 1095,
+      "context": "self.add_password = self.passwd.add_password",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 1547,
+      "context": "user, passwd = _splitpasswd(user)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 1914,
+      "context": "proxy_passwd = unquote(proxy_passwd)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 1920,
+      "context": "user_passwd = unquote(user_passwd)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 2048,
+      "context": "if user: user, passwd = _splitpasswd(user)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 2052,
+      "context": "passwd = unquote(passwd or '')",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 2278,
+      "context": "user, passwd = self.get_user_passwd(proxyhost, realm, i)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 2296,
+      "context": "user, passwd = self.get_user_passwd(proxyhost, realm, i)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 2310,
+      "context": "user, passwd = self.get_user_passwd(host, realm, i)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 2324,
+      "context": "user, passwd = self.get_user_passwd(host, realm, i)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 2341,
+      "context": "user, passwd = self.prompt_user_passwd(host, realm)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 2342,
+      "context": "if user or passwd: self.auth_cache[key] = (user, passwd)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 2350,
+      "context": "passwd = getpass.getpass(\"Enter password for %s in %s at %s: \" %",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/request.py",
+      "line_number": 2451,
+      "context": "pwd = self.ftp.pwd()",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/parse.py",
+      "line_number": 198,
+      "context": "username, have_password, password = userinfo.partition(':')",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/parse.py",
+      "line_number": 228,
+      "context": "username, have_password, password = userinfo.partition(b':')",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/urllib/parse.py",
+      "line_number": 1122,
+      "context": "user, delim, passwd = user.partition(':')",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_internal/network/auth.py",
+      "line_number": 94,
+      "context": "password = self.keyring.get_password(url, username)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_internal/network/auth.py",
+      "line_number": 121,
+      "context": "password = self._get_password(url, username)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_internal/network/auth.py",
+      "line_number": 344,
+      "context": "url, netloc, url_user_password = split_auth_netloc_from_url(",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_internal/network/auth.py",
+      "line_number": 349,
+      "context": "username, password = url_user_password",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_internal/network/auth.py",
+      "line_number": 360,
+      "context": "index_url, _, index_url_user_password = index_info",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_internal/network/auth.py",
+      "line_number": 365,
+      "context": "username, password = index_url_user_password",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_internal/network/auth.py",
+      "line_number": 407,
+      "context": "username, password = self._get_new_credentials(original_url)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_internal/network/auth.py",
+      "line_number": 426,
+      "context": "password = password or \"\"",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_internal/network/auth.py",
+      "line_number": 442,
+      "context": "url, username, password = self._get_url_and_credentials(req.url)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_internal/network/auth.py",
+      "line_number": 467,
+      "context": "password = ask_password(\"Password: \")",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_internal/network/auth.py",
+      "line_number": 490,
+      "context": "username, password = self._get_new_credentials(",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_internal/network/auth.py",
+      "line_number": 517,
+      "context": "password=password,",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_internal/vcs/versioncontrol.py",
+      "line_number": 410,
+      "context": "username: Optional[str], password: Optional[HiddenText]",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_internal/vcs/versioncontrol.py",
+      "line_number": 423,
+      "context": "username, secret_password = user_pass",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_internal/vcs/versioncontrol.py",
+      "line_number": 424,
+      "context": "password: Optional[HiddenText] = None",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_internal/vcs/versioncontrol.py",
+      "line_number": 426,
+      "context": "password = hide_value(secret_password)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_internal/vcs/subversion.py",
+      "line_number": 98,
+      "context": "username: Optional[str], password: Optional[HiddenText]",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/truststore/_api.py",
+      "line_number": 160,
+      "context": "password: _PasswordType | None = None,",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/truststore/_api.py",
+      "line_number": 163,
+      "context": "certfile=certfile, keyfile=keyfile, password=password",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/distlib/index.py",
+      "line_number": 83,
+      "context": "self.password = cfg.get('password')",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/distlib/util.py",
+      "line_number": 822,
+      "context": "username, password = prefix.split(':', 1)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/distlib/util.py",
+      "line_number": 826,
+      "context": "password = unquote(password)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/requests/auth.py",
+      "line_number": 53,
+      "context": "password = str(password)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/requests/auth.py",
+      "line_number": 60,
+      "context": "password = password.encode(\"latin1\")",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/requests/auth.py",
+      "line_number": 81,
+      "context": "self.password = password",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/requests/auth.py",
+      "line_number": 112,
+      "context": "self.password = password",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/requests/sessions.py",
+      "line_number": 322,
+      "context": "username, password = get_auth_from_url(new_proxies[scheme])",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/requests/adapters.py",
+      "line_number": 281,
+      "context": "username, password = get_auth_from_url(proxy)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/requests/adapters.py",
+      "line_number": 285,
+      "context": "password=password,",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/requests/adapters.py",
+      "line_number": 606,
+      "context": "username, password = get_auth_from_url(proxy)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/rich/prompt.py",
+      "line_number": 71,
+      "context": "self.password = password",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/rich/prompt.py",
+      "line_number": 143,
+      "context": "password=password,",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/rich/prompt.py",
+      "line_number": 211,
+      "context": "return console.input(prompt, password=password, stream=stream)",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/rich/prompt.py",
+      "line_number": 380,
+      "context": "password = Prompt.ask(",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/rich/prompt.py",
+      "line_number": 387,
+      "context": "print(f\"password={password!r}\")",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/urllib3/connection.py",
+      "line_number": 320,
+      "context": "self.key_password = key_password",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/urllib3/connection.py",
+      "line_number": 354,
+      "context": "self.key_password = key_password",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/urllib3/connection.py",
+      "line_number": 423,
+      "context": "key_password=self.key_password,",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/urllib3/connectionpool.py",
+      "line_number": 975,
+      "context": "self.key_password = key_password",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/urllib3/connectionpool.py",
+      "line_number": 991,
+      "context": "key_password=self.key_password,",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/urllib3/connectionpool.py",
+      "line_number": 1047,
+      "context": "key_password=self.key_password,",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/urllib3/contrib/socks.py",
+      "line_number": 102,
+      "context": "proxy_password=self._socks_options[\"password\"],",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/urllib3/contrib/pyopenssl.py",
+      "line_number": 477,
+      "context": "password = password.encode(\"utf-8\")",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/tkinter/filedialog.py",
+      "line_number": 219,
+      "context": "pwd = os.getcwd()",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/idlelib/filelist.py",
+      "line_number": 106,
+      "context": "pwd = os.getcwd()",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/idlelib/iomenu.py",
+      "line_number": 377,
+      "context": "pwd = os.getcwd()",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "high",
+      "category": "secret_leak",
+      "description": "发现可能的硬编码密码",
+      "file_path": ".conda/lib/python3.11/logging/handlers.py",
+      "line_number": 1041,
+      "context": "self.username, self.password = credentials",
+      "recommendation": "移除硬编码的硬编码密码，使用环境变量或安全存储"
+    },
+    {
+      "severity": "medium",
+      "category": "file_permission",
+      "description": "敏感文件对其他用户可读",
+      "file_path": "config.json",
+      "line_number": 0,
+      "context": "权限: -rw-r--r--",
+      "recommendation": "设置文件权限为600 (仅所有者可读写)"
+    },
+    {
+      "severity": "medium",
+      "category": "file_permission",
+      "description": "敏感文件对其他用户可读",
+      "file_path": ".env",
+      "line_number": 0,
+      "context": "权限: -rw-r--r--",
+      "recommendation": "设置文件权限为600 (仅所有者可读写)"
+    },
+    {
+      "severity": "medium",
+      "category": "file_permission",
+      "description": "敏感文件对其他用户可读",
+      "file_path": ".conda/ssl/cert.pem",
+      "line_number": 0,
+      "context": "权限: -rw-r--r--",
+      "recommendation": "设置文件权限为600 (仅所有者可读写)"
+    },
+    {
+      "severity": "medium",
+      "category": "file_permission",
+      "description": "敏感文件对其他用户可读",
+      "file_path": ".conda/ssl/cacert.pem",
+      "line_number": 0,
+      "context": "权限: -rw-r--r--",
+      "recommendation": "设置文件权限为600 (仅所有者可读写)"
+    },
+    {
+      "severity": "medium",
+      "category": "file_permission",
+      "description": "敏感文件对其他用户可读",
+      "file_path": ".conda/lib/python3.11/site-packages/pip/_vendor/certifi/cacert.pem",
+      "line_number": 0,
+      "context": "权限: -rw-r--r--",
+      "recommendation": "设置文件权限为600 (仅所有者可读写)"
+    },
+    {
+      "severity": "medium",
+      "category": "incomplete_gitignore",
+      "description": ".gitignore缺少重要项目: *.pem",
+      "file_path": ".gitignore",
+      "line_number": 0,
+      "context": "",
+      "recommendation": "在.gitignore中添加 *.pem"
+    },
+    {
+      "severity": "medium",
+      "category": "incomplete_gitignore",
+      "description": ".gitignore缺少重要项目: secrets.json",
+      "file_path": ".gitignore",
+      "line_number": 0,
+      "context": "",
+      "recommendation": "在.gitignore中添加 secrets.json"
+    },
+    {
+      "severity": "medium",
+      "category": "incomplete_gitignore",
+      "description": ".gitignore缺少重要项目: credentials.json",
+      "file_path": ".gitignore",
+      "line_number": 0,
+      "context": "",
+      "recommendation": "在.gitignore中添加 credentials.json"
+    },
+    {
+      "severity": "high",
+      "category": "config_secrets",
+      "description": "配置文件config.json可能包含敏感信息",
+      "file_path": "config.json",
+      "line_number": 0,
+      "context": "",
+      "recommendation": "移除敏感信息，使用环境变量或安全存储"
+    },
+    {
+      "severity": "medium",
+      "category": "dependency_security",
+      "description": "存在未固定版本的依赖",
+      "file_path": "requirements.txt",
+      "line_number": 0,
+      "context": "未固定版本的依赖: requests>=2.25.0, argparse>=1.4.0, streamlit>=1.22.0...",
+      "recommendation": "固定依赖版本以避免潜在的安全风险"
+    }
+  ],
+  "recommendations": [
+    "🔐 使用环境变量或安全存储管理API密钥，避免硬编码",
+    "🔒 设置敏感文件的正确权限(600)",
+    "🛡️ 定期更新依赖以修复安全漏洞",
+    "🔍 建立持续的安全扫描流程",
+    "📖 为团队制定安全编码规范",
+    "🚨 配置Git预提交钩子防止敏感信息泄露"
+  ]
+}

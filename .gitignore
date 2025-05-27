@@ -75,3 +75,11 @@ desktop.ini
 .streamlit/
 __pycache__/
 .ipynb_checkpoints/ 
+# Added by security scanner
+*.key
+
+# Added by security scanner
+
+# Added by security scanner
+
+# Added by security scanner

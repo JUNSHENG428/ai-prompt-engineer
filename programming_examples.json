@@ -1,0 +1,22 @@
+[
+  {
+    "input": "创建一个Python函数来计算斐波那契数列",
+    "output": "# 斐波那契数列生成器\n\n## 任务描述\n创建一个高效的Python函数来计算斐波那契数列的第n项。\n\n## 要求\n1. 函数名: `fibonacci(n)`\n2. 输入: 正整数n (n >= 0)\n3. 输出: 第n项斐波那契数\n4. 处理边界情况 (n=0, n=1)\n5. 优化性能，避免重复计算\n6. 添加详细的文档字符串\n7. 包含错误处理\n\n## 实现要求\n- 使用动态编程或记忆化技术\n- 包含时间复杂度和空间复杂度说明\n- 添加单元测试示例\n- 遵循PEP 8编码规范"
+  },
+  {
+    "input": "重构这段重复的JavaScript代码",
+    "output": "# JavaScript代码重构指南\n\n## 重构目标\n消除代码重复，提高可维护性和可读性。\n\n## 重构原则\n1. **DRY原则**: 不要重复自己\n2. **函数提取**: 将重复逻辑提取为独立函数\n3. **参数化**: 使用参数替代硬编码值\n4. **模块化**: 将相关功能组织到模块中\n5. **一致性**: 保持命名和代码风格一致\n\n## 重构步骤\n1. 识别重复模式\n2. 提取公共逻辑\n3. 创建可复用函数\n4. 使用合适的设计模式\n5. 添加适当的错误处理\n6. 更新相关测试\n\n## 代码质量检查\n- 使用ESLint进行静态分析\n- 确保所有测试通过\n- 验证性能没有退化\n- 检查代码覆盖率"
+  },
+  {
+    "input": "设计一个RESTful API用于用户管理系统",
+    "output": "# 用户管理系统 RESTful API 设计\n\n## API概述\n设计一个完整的用户管理系统API，支持用户的增删改查操作。\n\n## 基础设置\n- 基础URL: `https://api.yourdomain.com/v1`\n- 认证方式: JWT Bearer Token\n- 数据格式: JSON\n- 字符编码: UTF-8\n\n## 端点设计\n\n### 用户注册\n- **POST** `/users/register`\n- **POST** `/auth/login`\n- **POST** `/auth/logout`\n- **POST** `/auth/refresh`\n\n### 用户管理\n- **GET** `/users` - 获取用户列表（分页）\n- **GET** `/users/{id}` - 获取单个用户\n- **PUT** `/users/{id}` - 更新用户信息\n- **DELETE** `/users/{id}` - 删除用户\n- **GET** `/users/{id}/profile` - 获取用户档案\n\n## 数据模型\n```json\n{\n  \"id\": \"uuid\",\n  \"username\": \"string\",\n  \"email\": \"string\",\n  \"created_at\": \"datetime\",\n  \"updated_at\": \"datetime\",\n  \"is_active\": \"boolean\"\n}\n```\n\n## 错误处理\n- 使用标准HTTP状态码\n- 提供详细的错误信息\n- 实现全局异常处理\n\n## 安全考虑\n- 输入验证和清理\n- 速率限制\n- HTTPS强制\n- CORS配置\n\n## 测试要求\n- 单元测试覆盖率 > 90%\n- 集成测试\n- API文档测试\n- 性能测试"
+  },
+  {
+    "input": "优化这个数据库查询的性能",
+    "output": "# 数据库查询性能优化指南\n\n## 优化策略\n系统性地分析和优化数据库查询性能。\n\n## 分析步骤\n1. **查询分析**\n   - 使用EXPLAIN分析执行计划\n   - 识别慢查询和瓶颈\n   - 检查索引使用情况\n   - 分析表连接策略\n\n2. **索引优化**\n   - 创建合适的单列索引\n   - 设计复合索引\n   - 避免过度索引\n   - 定期维护索引\n\n3. **查询重写**\n   - 避免SELECT *\n   - 使用适当的WHERE条件\n   - 优化JOIN操作\n   - 考虑子查询vs连接\n\n## 优化技术\n- **分页优化**: 使用LIMIT和OFFSET高效实现\n- **缓存策略**: Redis/Memcached缓存热点数据\n- **分区表**: 水平分区大表\n- **读写分离**: 主从数据库架构\n\n## 监控指标\n- 查询执行时间\n- CPU和内存使用率\n- 锁等待时间\n- 索引命中率\n\n## 工具推荐\n- MySQL: pt-query-digest, MySQL Workbench\n- PostgreSQL: pgAdmin, pg_stat_statements\n- 通用: New Relic, DataDog\n\n## 最佳实践\n- 定期更新统计信息\n- 避免在生产环境直接测试\n- 备份重要数据\n- 逐步应用优化措施"
+  },
+  {
+    "input": "实现一个React组件的单元测试",
+    "output": "# React组件单元测试实现指南\n\n## 测试框架设置\n使用Jest + React Testing Library创建全面的组件测试。\n\n## 测试环境配置\n```bash\nnpm install --save-dev @testing-library/react @testing-library/jest-dom jest-environment-jsdom\n```\n\n## 测试结构\n1. **导入必要库**\n   - React Testing Library\n   - Jest matchers\n   - 被测试组件\n\n2. **测试用例设计**\n   - 渲染测试\n   - 用户交互测试\n   - Props测试\n   - 状态变化测试\n   - 错误边界测试\n\n## 测试最佳实践\n\n### 测试原则\n- **测试行为而非实现**: 关注用户看到和交互的内容\n- **可读性**: 测试应该易于理解和维护\n- **独立性**: 每个测试应该独立运行\n- **快速反馈**: 测试应该快速执行\n\n### 常见测试场景\n1. **组件渲染**\n   - 验证组件正确渲染\n   - 检查默认props\n   - 测试条件渲染\n\n2. **用户交互**\n   - 点击事件\n   - 表单输入\n   - 键盘操作\n   - 悬停效果\n\n3. **异步操作**\n   - API调用\n   - 加载状态\n   - 错误处理\n\n## 测试工具函数\n- `render()`: 渲染组件\n- `screen.getByText()`: 查找文本元素\n- `fireEvent.click()`: 模拟点击\n- `waitFor()`: 等待异步操作\n\n## Mock策略\n- API调用mock\n- 第三方库mock\n- 时间和日期mock\n- 路由mock\n\n## 覆盖率要求\n- 行覆盖率: > 80%\n- 分支覆盖率: > 75%\n- 函数覆盖率: > 90%\n- 语句覆盖率: > 85%"
+  }
+] 
